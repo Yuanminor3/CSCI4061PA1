@@ -3,7 +3,31 @@
 // Create N files and distribute the data from the input file evenly among them
 // See section 3.1 of the project writeup for important implementation details
 void partition_file_data(char *input_file, int n, char *blocks_folder) {
-    // Hint: Use fseek() and ftell() to determine the size of the file
+    int FileSize;
+    char buf[1024];
+    for(int i; i < n; i++){
+        if(i == n-1){
+            FileSize = floor(size(input_file)/n) + size(input_file)%n;
+        }
+        else{
+            FileSize = floor(size(input_file)/n);
+        }
+        fopen("%d.txt", 'a+', i);
+        fwrite(buf, 1, FileSize);
+        fseek(input_file, 0, FileSie); //Moves file pointer
+    }int FileSize;
+    char buf[1024];
+    for(int i; i < n; i++){
+        if(i == n-1){
+            FileSize = floor(size(input_file)/n) + size(input_file)%n;
+        }
+        else{
+            FileSize = floor(size(input_file)/n);
+        }
+        fopen("%d.txt", 'a+', i);
+        fwrite(buf, 1, FileSize);
+        fseek(input_file, 0, FileSie); //Moves file pointer
+    }
 }
 
 
