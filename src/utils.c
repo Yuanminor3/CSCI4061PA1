@@ -1,9 +1,67 @@
 #include "utils.h"
+#define PATH_MAX 1024
 
 // Create N files and distribute the data from the input file evenly among them
 // See section 3.1 of the project writeup for important implementation details
 void partition_file_data(char *input_file, int n, char *blocks_folder) {
+    
     // Hint: Use fseek() and ftell() to determine the size of the file
+    FILE *fIn = fopen(input_file, "r");
+    if (fIn == NULL) {
+        perror("Failed to open input file");
+        return;
+    }
+
+    // Get the size of input_file
+    fseek(fIn, 0, SEEK_END);
+    long int file_size = ftell(fIn);
+    // Set the pointer back at start
+    fseek(fIn, 0, SEEK_SET);
+
+    // Calculate block file size by formula
+    long int block_size = file_size / n;
+    long int last_block_size = block_size + (file_size % n);
+
+    // Create filename buffer
+    char block_filename[PATH_MAX];
+
+    for (int i = 0; i < n; i++) {
+        // Create filename.txt
+        // snprintf makes sure that the generated string does not exceed the specified size
+        // It truncates the string or stops writing to make sure that it does not cause a buffer overflow
+        snprintf(block_filename, sizeof(block_filename), "%s/%d.txt", blocks_folder, i);
+
+        // Open block file
+        FILE *block_file = fopen(block_filename, "w");
+        if (block_file == NULL) {
+            perror("Failed to create block file");
+            fclose(fIn);
+            return;
+        }
+
+        // Confirm written data size
+        long int current_block_size;
+        if (i == n-1){
+            current_block_size = last_block_size;
+        }else{
+            current_block_size = block_size;
+        }
+        char *buffer = (char *)malloc(current_block_size);
+        if (buffer == NULL) {
+            perror("Failed to allocate memory for buffer");
+            fclose(fIn);
+            fclose(block_file);
+            return;
+        }
+
+        fread(buffer, 1, current_block_size, fIn);
+        fwrite(buffer, 1, current_block_size, block_file);
+
+        free(buffer); // free up memory
+        fclose(block_file);
+    }
+
+    fclose(fIn);
 }
 
 

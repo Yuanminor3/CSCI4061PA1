@@ -24,7 +24,7 @@ child_process: $(SRCDIR)/child_process.c $(LOBJS)
 ${LIBDIR}/utils.o: $(SRCDIR)/utils.c $(INCDIR)/utils.h
 	$(CC) $(CFLAGS) -I$(INCDIR) -c $(SRCDIR)/utils.c -o $(LIBDIR)/utils.o
 
-t1:
+t1: 
 	./merkle input/T1.txt 8
 
 t2:
