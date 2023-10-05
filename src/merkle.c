@@ -41,13 +41,19 @@ int main(int argc, char* argv[]) {
         //int execl(const char *path, const char *arg0, const char *arg1, ..., (char *)0);
         // NULL indicates the end of the argument, telling the function to stop parsing the argument here.
         execl("./child_process", "./child_process", blocks_folder, hashes_folder, argv[2], rootID, NULL);
-    }else{ // Parent
-        // ##### DO NOT REMOVE #####
+    }
+    else{ // Parent
+
+        // wait child process
         wait(NULL);
+        // ##### DO NOT REMOVE ####
         #ifndef TEST_INTERMEDIATE
         // Visually display the merkle tree using the output in the hashes_folder
         print_merkle_tree(visualization_file, hashes_folder, n);
         #endif
+
+        
+        
     }
 
     return 0;
