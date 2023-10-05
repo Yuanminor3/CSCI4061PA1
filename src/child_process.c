@@ -12,18 +12,19 @@ int main(int argc, char* argv[]) {
         printf("Usage: ./child_process <blocks_folder> <hashes_folder> <N> <child_id>\n");
         return 1;
     }
+    
 
     char *blocks_folder = argv[1];
     char *hashes_folder = argv[2];
     int N = atoi(argv[3]);
     int child_id = atoi(argv[4]);
+    //printf("%d", child_id);
 
     char block_filename[PATH_MAX];
     char hash_filename[PATH_MAX];
 
     // Create filename.txt associated with this process
-    snprintf(block_filename, sizeof(block_filename), "%s/%d.txt", blocks_folder, child_id);
-    //printf(child_id);
+    snprintf(block_filename, sizeof(block_filename), "%s/%d.txt", blocks_folder, child_id - N + 1);
 
     // TODO: If the current process is a leaf process, read in the associated block file 
     // and compute the hash of the block.
@@ -34,7 +35,7 @@ int main(int argc, char* argv[]) {
         // Perform hash computation for leaf process
 
         // Each byte of the hash is represented by two characters in hex
-        // So we need twice as much space to store the hash as the number of bytes in the hash.
+        //So we need twice as much space to store the hash as the number of bytes in the hash.
         char block_hash[SHA256_BLOCK_SIZE * 2 + 1];
         // Hashes the data in block_filename and stores the result in result_hash based on hash.h
         hash_data_block(block_hash, block_filename);
@@ -49,10 +50,10 @@ int main(int argc, char* argv[]) {
             perror("Error opening hash_file");
             exit(-1);
         }
-        // int fprintf(FILE *stream, const char *format, ...)
-        fprintf(hash_file, "%s\n", block_hash);
+        fwrite(block_hash, 1, SHA256_BLOCK_SIZE * 2 + 1, hash_file);
         fclose(hash_file);
-    }else{
+    }
+    else{
         // TODO: If the current process is not a leaf process, spawn two child processes using  
         // exec() and ./child_process. 
         pid_t left_child, right_child;
@@ -86,12 +87,9 @@ int main(int argc, char* argv[]) {
                 char left_hash_filename[PATH_MAX];
                 char right_hash_filename[PATH_MAX];
                 char combine_hash_filename[PATH_MAX];
-                //char left_block_filename[PATH_MAX];
-                //char right_block_filename[PATH_MAX];
+                
                 snprintf(left_hash_filename, sizeof(left_hash_filename), "%s/%d.out", hashes_folder, 2 * child_id + 1);
                 snprintf(right_hash_filename, sizeof(right_hash_filename), "%s/%d.out", hashes_folder, 2 * child_id + 2);
-                //snprintf(left_block_filename, sizeof(left_block_filename), "%s/%d.txt", blocks_folder, 2 * child_id + 1);
-                //snprintf(right_block_filename, sizeof(right_block_filename), "%s/%d.txt", blocks_folder, 2 * child_id + 2);
 
 
                 
@@ -122,6 +120,7 @@ int main(int argc, char* argv[]) {
                 fread(right_hash_data, 1, SHA256_BLOCK_SIZE * 2 + 1, right_hash_file);
                 fclose(right_hash_file);
 
+
                 // Combined the hash data
                 compute_dual_hash(combined_hash_data, left_hash_data, right_hash_data);
 
@@ -135,8 +134,7 @@ int main(int argc, char* argv[]) {
                     perror("Error opening hash_file");
                     exit(-1);
                 }
-                // int fprintf(FILE *stream, const char *format, ...)
-                fprintf(hash_file, "%s\n", combined_hash_data);
+                fwrite(combined_hash_data, 1, SHA256_BLOCK_SIZE * 2 + 1, hash_file);
                 fclose(hash_file);
             }
         }
